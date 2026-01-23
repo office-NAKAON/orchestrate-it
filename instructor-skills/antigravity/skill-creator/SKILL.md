@@ -1,15 +1,15 @@
 ---
 name: skill-creator
 description: |
-  AIスキルを作成・設計するためのガイド。Anthropicのskill-creatorをベースに、Google Antigravity向けに最適化。
+  AIスキルを作成・設計するためのガイド。Anthropic公式skill-creatorをベースに、Google Antigravity向けに最適化。
   Use when: スキル作成, skill作成, 新しいスキル, スキルを作りたい, SKILL.md, スキル設計, スキルの書き方
   Do not use when: 既存スキルの実行, スキルと関係ないタスク
 ---
 
-# Skill Creator Guide（スキル作成ガイド）
+# Skill Creator Guide
 
-AIコードエディタで使えるスキルを作成するためのガイド。
-Anthropic公式のskill-creatorをベースに、Google Antigravity向けに最適化。
+Google Antigravityで使えるスキルを作成するためのガイド。
+Anthropic公式のskill-creatorをベースに最適化。
 
 ## このスキルを使用する時
 
@@ -34,6 +34,8 @@ Anthropic公式のskill-creatorをベースに、Google Antigravity向けに最�
 スキルはAIが必要とする他の全てのものとコンテキストを共有する。
 **必要最小限の情報のみ**を含め、各要素の必要性を吟味すること。
 
+**デフォルトの前提: AIは既に非常に賢い。** AIがまだ持っていない情報のみを追加する。
+
 ### 2. 500行ルール
 
 SKILL.mdは**500行以下**に保つ。それ以上になる場合：
@@ -56,61 +58,88 @@ AIはこの記述を見て、スキルを起動するか判断する。
 
 ---
 
-## スキル構造
+## スキルの構造
 
-### 最小構成
-
-```
-skill-name/
-└── SKILL.md          # これだけで動く
-```
-
-### 拡張構成
+### Antigravityのフォルダ構成
 
 ```
-skill-name/
-├── SKILL.md          # メインの指示（必須）
-├── scripts/          # 実行可能コード
-│   └── helper.py
-├── references/       # 詳細ドキュメント
-│   └── api-guide.md
-└── assets/           # テンプレート・画像
-    └── template.md
+project/
+├── .agent/
+│   ├── skills/           # スキル定義
+│   │   └── skill-name/
+│   │       ├── SKILL.md     # メインの指示（必須）
+│   │       ├── scripts/     # 実行可能コード
+│   │       ├── references/  # 詳細ドキュメント
+│   │       └── assets/      # 出力用ファイル
+│   ├── rules/            # 常時適用ルール
+│   └── workflows/        # ワークフロー定義
+└── GEMINI.md             # プロジェクト説明
 ```
 
-### YAML Frontmatter
+### グローバル vs プロジェクト
 
-```yaml
+| レベル | パス | 用途 |
+|-------|------|------|
+| グローバル | `~/.gemini/antigravity/skills/` | 全プロジェクト共通 |
+| プロジェクト | `.agent/skills/` | プロジェクト固有 |
+
+**注意**: Gemini CLI（ターミナルツール）とは異なります。
+- Antigravity: `.agent/` フォルダ、`~/.gemini/antigravity/`
+- Gemini CLI: `.gemini/` フォルダ
+
+### Bundled Resources（オプション）
+
+#### scripts/
+実行可能コード（Python/Bashなど）。決定論的な信頼性が必要な場合や、同じコードが繰り返し書き直される場合に含める。
+
+- **例**: `rotate_pdf.py`, `validate_data.py`
+- **利点**: トークン効率的、決定論的、コンテキストに読み込まずに実行可能
+
+#### references/
+必要に応じてコンテキストに読み込むドキュメント。
+
+- **例**: APIドキュメント、データベーススキーマ、詳細なワークフローガイド
+- **利点**: SKILL.mdを軽量に保つ、必要な時だけ読み込む
+- **ベストプラクティス**: 大きいファイル（10k語以上）にはgrep検索パターンを記載
+
+#### assets/
+出力で使用されるファイル（コンテキストには読み込まれない）。
+
+- **例**: テンプレート、画像、フォント、ボイラープレートコード
+- **利点**: 出力リソースをドキュメントから分離
+
 ---
-name: skill-name           # ハイフン区切り、小文字、最大64文字
-description: |
-  スキルの説明（1024文字以下）。
-  Use when: トリガーワード
-  Do not use when: 除外条件
----
+
+## スキル作成プロセス
+
+### Step 1: 具体例で理解する
+
+スキルがどう使われるか、具体例を集める：
+- 「どんな機能をサポートすべき？」
+- 「使用例を教えて」
+- 「どんな言葉でトリガーされる？」
+
+### Step 2: リソースを計画する
+
+各具体例を分析し、必要なリソースを特定：
+- **scripts/**: 繰り返し書き直されるコード → スクリプト化
+- **references/**: 毎回再発見する情報 → ドキュメント化
+- **assets/**: 毎回使うボイラープレート → テンプレート化
+
+### Step 3: スキルを初期化
+
+新規作成の場合は `scripts/init_skill.py` を実行：
+
+```bash
+python scripts/init_skill.py <skill-name> --path .agent/skills
 ```
 
----
+### Step 4: スキルを編集
 
-## スキル開発ワークフロー
+**出力パターン**: 詳細は `references/output-patterns.md` を参照
+**ワークフローパターン**: 詳細は `references/workflows.md` を参照
 
-### Step 1: ユースケースを明確化
-
-```
-このスキルで解決したい問題：
-- 具体例1: 「〇〇を作って」と言われた時に△△する
-- 具体例2: □□の作業を自動化したい
-```
-
-### Step 2: 構造を決める
-
-| パターン | 適用場面 | 例 |
-|---------|---------|-----|
-| ワークフロー型 | 順番に処理する | Step1→Step2→Step3 |
-| タスク型 | 複数機能がある | タスクA, タスクB, タスクC |
-| リファレンス型 | 標準・仕様を守る | ガイドライン、ルール集 |
-
-### Step 3: SKILL.mdを書く
+#### SKILL.mdの書き方
 
 ```markdown
 # スキル名
@@ -125,12 +154,8 @@ description: |
 - 除外1
 - 除外2
 
-## 対応タスク
-1. タスク1
-2. タスク2
-
-## 実行方法
-[具体的な手順]
+## ワークフロー / 対応タスク
+[具体的な手順やタスク一覧]
 
 ## ヒアリング項目
 実装前に確認：
@@ -141,19 +166,15 @@ description: |
 [どのような形式で出力するか]
 ```
 
-### Step 4: テスト
+### Step 5: テスト＆検証
 
-作成したスキルを実際に使ってみる：
-- トリガーワードでスキルが起動するか
-- 期待通りの出力が得られるか
-- エッジケースに対応できるか
+```bash
+python scripts/quick_validate.py .agent/skills/<skill-name>
+```
 
-### Step 5: 改善
+### Step 6: 反復改善
 
-使用中に気づいた問題点を修正：
-- トリガーワードの追加・削除
-- 手順の明確化
-- 例の追加
+実際に使ってみて、うまくいかない部分を修正する。
 
 ---
 
@@ -161,69 +182,51 @@ description: |
 
 ### DO（やるべきこと）
 
-- ✅ 明確な `Use when:` と `Do not use when:`
+- ✅ 明確な `Use when:` と `Do not use when:` をdescriptionに
 - ✅ 500行以下のSKILL.md
-- ✅ 具体例を含む
+- ✅ 具体例を含む（説明より例）
 - ✅ ヒアリング項目を用意
 - ✅ 出力形式を明記
+- ✅ 詳細はreferences/に分離
 
 ### DON'T（避けるべきこと）
 
 - ❌ README.md, CHANGELOG.mdなど不要ファイル
 - ❌ AIが既に知っている情報の重複
 - ❌ 曖昧な説明（「良い感じに」「適切に」）
-- ❌ 必要ない時のリソース全読み込み
+- ❌ 深くネストされた参照ファイル
 - ❌ 複数の無関係なタスクを1つのスキルに
 
 ---
 
-## 出力パターン
+## Progressive Disclosure（段階的開示）
 
-### テンプレートパターン
+スキルは3レベルの読み込みシステムを使う：
 
-形式を厳密に守らせたい時：
+1. **メタデータ（name + description）** - 常にコンテキストに（〜100語）
+2. **SKILL.md本体** - スキルがトリガーされた時（<5k語）
+3. **Bundled resources** - AIが必要と判断した時（無制限）
 
-```markdown
-**必ずこの形式で出力：**
-
-# タイトル
-## セクション1
-[内容]
-## セクション2
-[内容]
-```
-
-### 例示パターン
-
-スタイルを伝えたい時：
-
-```markdown
-**入力例:** 「ログイン機能を追加」
-**出力例:** `feat(auth): JWT認証を実装`
-
-**入力例:** 「バグを修正」
-**出力例:** `fix(api): nullチェックを追加`
-```
+**重要**: SKILL.mdからreferencesファイルを明確に参照し、いつ読むべきか説明する。
 
 ---
 
-## スキル作成スクリプト
+## Rules vs Skills の使い分け
 
-### 新規スキルの初期化
+| 項目 | Rules | Skills |
+|------|-------|--------|
+| 場所 | `.agent/rules/` | `.agent/skills/` |
+| 適用 | 常に自動 | 必要な時だけ |
+| 用途 | ポリシー、規約 | 手順、専門知識 |
+| 例 | コーディング規約 | 指導案作成手順 |
 
-```bash
-python scripts/init_skill.py <skill-name> --path .agent/skills
-```
-
-### スキルの検証
-
-```bash
-python scripts/quick_validate.py .agent/skills/<skill-name>
-```
+**判断の目安**:
+- 「毎回必ず守ってほしい」→ **Rules**
+- 「特定のタスクでだけ使う」→ **Skills**
 
 ---
 
 ## 参考リンク
 
 - [Anthropic Skills Repository](https://github.com/anthropics/skills)
-- [Antigravity Skills Documentation](https://antigravity.google/docs/skills)
+- [Antigravity Documentation](https://antigravity.google)
