@@ -1,13 +1,14 @@
 ---
 name: sitemap-search
-description: "Webサイトのサイトマップページとサイト内検索機能を実装する。サイトマップ、サイト内検索、ページ一覧、ナビゲーション、検索機能、困った人向けナビ、コンテキストナビを追加したい時に使用。"
-user-invocable: true
-argument-hint: "[framework: react|next|vanilla] [--tags] [--keyboard] [--context-nav]"
+description: |
+  Webサイトのサイトマップページとサイト内検索機能を実装するスキル。
+  Use when: サイトマップ、サイト内検索、ページ一覧、ナビゲーション、検索機能、sitemap、search、フィルタリング、タグ検索、カテゴリ検索、Cmd+K、ページを探す、困った人向けナビ
+  Do not use when: SEO用sitemap.xml生成、外部検索エンジン連携、サーバーサイド全文検索
 ---
 
 # サイトマップ & サイト内検索機能スキル
 
-Webサイトにサイトマップページとサイト内検索機能を実装するスキル。
+Webサイトにサイトマップページとサイト内検索機能を実装する。
 ユーザーが目的のページを素早く見つけられるナビゲーション体験を提供。
 
 ## このスキルを使用する時
@@ -15,26 +16,29 @@ Webサイトにサイトマップページとサイト内検索機能を実装�
 - サイトマップページを作りたい
 - サイト内検索機能を実装したい
 - Cmd/Ctrl + K でページ検索できるようにしたい
+- タグやカテゴリでページをフィルタリングしたい
 - **困った人向けのナビゲーション**を追加したい
 
 ## このスキルを使用しない時
 
-- SEO用のsitemap.xmlを生成したい
+- SEO用のsitemap.xmlを生成したい（別スキル/ツールを使用）
 - Algoliaなど外部検索サービスと連携したい
+- サーバーサイド全文検索を実装したい
 
 ## 対応タスク
 
 1. サイトマップページの作成
-2. サイト内検索機能（モーダル + リアルタイム検索）
+2. サイト内検索機能（クライアントサイド）
 3. タグ・カテゴリによるフィルタリング
-4. キーボードショートカット（Cmd/Ctrl + K）
-5. **コンテキスト別ナビゲーション（困りごとから探す）** ← 重要！
+4. 検索結果のハイライト表示
+5. キーボードショートカット（Cmd/Ctrl + K）
+6. **コンテキスト別ナビゲーション（困りごとから探す）**
 
 ---
 
 ## 重要：コンテキスト別ナビゲーション
 
-**サイトマップの本来の目的は「困っている人を助ける」こと。**
+サイトマップの本来の目的は「困っている人を助ける」こと。
 単なるページ一覧だけでは、どのページに行けばいいかわからない。
 
 ### 「困りごとから探す」セクション
@@ -75,8 +79,8 @@ const contextNavItems = [
     title: "特定のことをしたい",
     description: "目的別ガイド",
     links: [
-      { title: "〇〇を作りたい", href: "/create-xxx" },
-      { title: "△△したい", href: "/do-yyy" },
+      { title: "教材を作りたい", href: "/create-material" },
+      { title: "成績処理したい", href: "/grading" },
     ]
   },
 ];
@@ -86,25 +90,23 @@ const contextNavItems = [
 
 ```tsx
 <section className="py-12">
-  <h2 className="text-2xl font-bold mb-2">困りごとから探す</h2>
-  <p className="text-neutral-500 mb-6">何を探せばいいかわからない方はこちら</p>
-  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <h2 className="text-2xl font-bold mb-6">困りごとから探す</h2>
+  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
     {contextNavItems.map((item) => (
       <div
         key={item.title}
-        className="p-5 bg-white dark:bg-neutral-900 rounded-xl border hover:shadow-lg transition"
+        className="p-6 bg-white dark:bg-neutral-800 rounded-xl border hover:shadow-lg transition"
       >
-        <div className="flex items-center gap-3 mb-3">
-          <span className="text-2xl">{item.icon}</span>
-          <div>
-            <h3 className="font-bold">{item.title}</h3>
-            <p className="text-xs text-neutral-500">{item.description}</p>
-          </div>
-        </div>
+        <span className="text-3xl mb-3 block">{item.icon}</span>
+        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+        <p className="text-sm text-neutral-500 mb-4">{item.description}</p>
         <ul className="space-y-2">
           {item.links.map((link) => (
             <li key={link.href}>
-              <a href={link.href} className="text-sm text-indigo-500 hover:underline">
+              <a
+                href={link.href}
+                className="text-indigo-500 hover:underline text-sm flex items-center gap-1"
+              >
                 → {link.title}
               </a>
             </li>
@@ -118,22 +120,23 @@ const contextNavItems = [
 
 ---
 
-## サイトマップページ設計
+## 1. サイトマップページ設計
 
-### 推奨構成
-
+### 基本構成
 ```
 サイトマップページ
-├── ヘッダー
-├── 困りごとから探す（コンテキストナビ）← 最初に配置！
-├── 検索バー
-├── カテゴリ別一覧
+├── ヘッダー（パンくずリスト）
+├── コンテキスト別ナビゲーション（困りごとから探す）← 重要！
+├── 検索バー（オプション）
+├── カテゴリ別グリッド
+│   ├── カテゴリA
+│   │   ├── ページリンク1
+│   │   └── ページリンク2
+│   └── カテゴリB
 └── フッター
 ```
 
----
-
-## 検索データ構造
+### 検索データ構造
 
 ```typescript
 interface SearchItem {
@@ -142,22 +145,28 @@ interface SearchItem {
   href: string;
   category: string;
   keywords: string[];
+  // コンテキストナビ用
+  useCase?: string[];  // どんな時に使うか
+  difficulty?: "beginner" | "intermediate" | "advanced";
 }
 
-export const searchData: SearchItem[] = [
+const searchData: SearchItem[] = [
   {
     title: "環境構築",
-    description: "インストールと初期設定",
+    description: "Gemini CLIのインストールと初期設定",
     href: "/setup",
     category: "はじめに",
     keywords: ["インストール", "設定", "セットアップ"],
+    useCase: ["初めて使う", "環境を作りたい"],
+    difficulty: "beginner"
   },
+  // ...
 ];
 ```
 
 ---
 
-## 検索アルゴリズム（スコアリング方式）
+## 2. 検索アルゴリズム（スコアリング方式）
 
 ```typescript
 function searchItems(query: string, items: SearchItem[]): SearchItem[] {
@@ -167,16 +176,27 @@ function searchItems(query: string, items: SearchItem[]): SearchItem[] {
   return items
     .map(item => {
       let score = 0;
+
       // タイトル完全一致: 100点
       if (item.title.toLowerCase() === normalized) score += 100;
       // タイトル前方一致: 80点
       else if (item.title.toLowerCase().startsWith(normalized)) score += 80;
       // タイトル部分一致: 60点
       else if (item.title.toLowerCase().includes(normalized)) score += 60;
+
       // キーワード一致: 50点
-      if (item.keywords.some(kw => kw.toLowerCase().includes(normalized))) score += 50;
+      if (item.keywords.some(kw => kw.toLowerCase().includes(normalized))) {
+        score += 50;
+      }
+
       // 説明文一致: 40点
       if (item.description.toLowerCase().includes(normalized)) score += 40;
+
+      // ユースケース一致: 45点
+      if (item.useCase?.some(uc => uc.toLowerCase().includes(normalized))) {
+        score += 45;
+      }
+
       return { ...item, score };
     })
     .filter(item => item.score > 0)
@@ -187,9 +207,10 @@ function searchItems(query: string, items: SearchItem[]): SearchItem[] {
 
 ---
 
-## キーボードショートカット
+## 3. キーボードショートカット
 
 ```typescript
+// Cmd/Ctrl + K でモーダルを開く
 useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -200,6 +221,7 @@ useEffect(() => {
       setIsSearchOpen(false);
     }
   };
+
   document.addEventListener('keydown', handleKeyDown);
   return () => document.removeEventListener('keydown', handleKeyDown);
 }, []);
@@ -207,7 +229,7 @@ useEffect(() => {
 
 ---
 
-## IME対応（日本語入力）
+## 4. IME対応（日本語入力）
 
 ```typescript
 const [isComposing, setIsComposing] = useState(false);
@@ -216,7 +238,9 @@ const [isComposing, setIsComposing] = useState(false);
   onCompositionStart={() => setIsComposing(true)}
   onCompositionEnd={() => setIsComposing(false)}
   onChange={(e) => {
-    if (!isComposing) search(e.target.value);
+    if (!isComposing) {
+      search(e.target.value);
+    }
   }}
 />
 ```
@@ -227,31 +251,64 @@ const [isComposing, setIsComposing] = useState(false);
 
 実装前に確認：
 
-1. **ユーザーの困りごと**
+1. **サイト構造**
+   - 全ページ数は？
+   - カテゴリ分類は？
+
+2. **ユーザーの困りごと**
    - どんな人が使う？
    - よくある質問は？
    - つまずきポイントは？
 
-2. **サイト構造**
-   - 全ページ数は？
-   - カテゴリ分類は？
-
 3. **検索要件**
    - キーボードショートカットは必要か？
+   - タグ・フィルタリングは必要か？
+
+4. **UI/UX**
+   - ダークモード対応は？
+   - レスポンシブ対応は？
 
 ---
 
 ## UXベストプラクティス
 
-- 検索ボックス幅: 27文字以上
-- サジェスト数: 10件以下
-- アクセシビリティ: `role="dialog"`, `aria-modal="true"`
-- フォーカストラップ実装
+### 検索UX
+
+- 検索ボックス幅: 27文字以上（90%のクエリをカバー）
+- サジェスト数: 10件以下（スクロールなし）
+- Spotlight風: 現在画面上にオーバーレイ表示
+- 背景ぼかし: `backdrop-filter: blur(4px)`
+
+### アクセシビリティ（ARIA）
+
+```tsx
+<div
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="search-title"
+>
+  <h2 id="search-title" className="sr-only">サイト内検索</h2>
+</div>
+```
+
+### フォーカストラップ
+
+モーダル内でTabキーがループするように実装。
+
+---
 
 ## パフォーマンス
 
-| ページ数 | 推奨 |
-|---------|------|
-| ~100 | クライアントサイド |
-| 100-1000 | Fuse.js |
-| 1000+ | Algolia |
+| ページ数 | 推奨アプローチ |
+|---------|---------------|
+| ~100 | クライアントサイド（このスキル） |
+| 100-1000 | Fuse.js + インデックス |
+| 1000+ | Algolia / Meilisearch |
+
+---
+
+## 出力形式
+
+- HTML/CSS/JavaScript
+- React/Next.js コンポーネント
+- TypeScript対応
