@@ -5,9 +5,31 @@
 ## このリポジトリでできること
 
 1. **サンプルを試す** - 講師が用意したSkills/Rules/Workflowsを自分の環境に導入
-2. **自分のSkillを作る** - テンプレートを使ってオリジナルSkillを作成
-3. **共有する** - Pull Requestで他の参加者と共有
-4. **他の人のSkillを使う** - 参加者が作ったSkillを自分の環境に導入
+2. **講師提供スキルを使う** - 実践的なスキル（サイトマップ&検索など）を導入
+3. **自分のSkillを作る** - テンプレートを使ってオリジナルSkillを作成
+4. **共有する** - Pull Requestで他の参加者と共有
+5. **他の人のSkillを使う** - 参加者が作ったSkillを自分の環境に導入
+
+---
+
+## 講師提供スキル（実践的なスキル集）
+
+講師が作成した、すぐに使える実践的なスキルです。
+**複数のAIコードエディタに対応**しています。
+
+| スキル名 | 説明 |
+|---------|------|
+| **sitemap-search** | サイトマップページ&サイト内検索機能を実装 |
+
+### 対応プラットフォーム
+
+| プラットフォーム | 導入方法 |
+|----------------|---------|
+| **Google Antigravity** | チャットでURL指定 |
+| **Claude Code** | `.claude/skills/` にコピー |
+| **Cursor** | `.cursor/rules/` にコピー |
+
+詳細は [instructor-skills/README.md](instructor-skills/README.md) を参照。
 
 ---
 
@@ -57,6 +79,30 @@ https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.agent/skills/lesso
 
 ---
 
+## スキル作成ガイド（Skill Creator）
+
+Anthropicが公開している[skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator)をベースにした、スキル作成のベストプラクティスを提供しています。
+
+**詳細:** [docs/SKILL-CREATOR.md](docs/SKILL-CREATOR.md)
+
+### 核心原則
+
+1. **コンテキストは公共財** - 必要最小限の情報のみを含める
+2. **500行以下のSKILL.md** - 長すぎるスキルは分割
+3. **明確なdescription** - `Use when:` でトリガー条件を明記
+
+### グローバルスキルとして導入
+
+どのフォルダを開いても使えるようにするには：
+
+| プラットフォーム | 配置先 |
+|----------------|--------|
+| Claude Code | `~/.claude/skills/` |
+| Antigravity | `~/.gemini/antigravity/skills/` |
+| Cursor | `~/.cursor/rules/` |
+
+---
+
 ## 自分のSkillを作って共有する
 
 ### Step 1: リポジトリをフォーク
@@ -90,14 +136,24 @@ submissions/
 ```
 orchestrate-it/
 ├── README.md                    # このファイル
-├── .agent/                      # サンプル（講師提供）
+├── .agent/                      # サンプル（Antigravity形式）
 │   ├── skills/                  # サンプルSkills
 │   │   ├── lesson-plan/         # 指導案作成Skill
-│   │   └── report-comment/      # 通知表コメントSkill
+│   │   ├── report-comment/      # 通知表コメントSkill
+│   │   └── parent-letter/       # 保護者向けお便りSkill
 │   ├── rules/                   # サンプルRules
-│   │   └── teaching-style.md    # 教育者向けルール
+│   │   ├── teaching-style.md    # 教育者向けルール
+│   │   └── output-format.md     # 出力フォーマットルール
 │   └── workflows/               # サンプルWorkflows
-│       └── material-create.md   # 教材作成ワークフロー
+│       ├── material-create.md   # 教材作成ワークフロー
+│       └── weekly-report.md     # 週報作成ワークフロー
+├── instructor-skills/           # 講師提供スキル（プラットフォーム別）
+│   ├── antigravity/             # Google Antigravity用
+│   │   └── sitemap-search/
+│   ├── claude-code/             # Claude Code用
+│   │   └── sitemap-search/
+│   └── cursor/                  # Cursor用
+│       └── sitemap-search/
 ├── submissions/                 # 参加者の提出場所
 │   └── examples/                # 提出例
 │       └── sample-user/

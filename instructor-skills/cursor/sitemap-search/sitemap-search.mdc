@@ -1,0 +1,254 @@
+---
+description: "サイトマップページとサイト内検索機能の実装時に適用。ページ一覧、ナビゲーション、検索モーダル、Cmd+K ショートカット、タグフィルタリングなどの実装パターンを提供。"
+globs: ["**/sitemap/**", "**/search/**", "**/components/Search*", "**/data/search*"]
+---
+
+# サイトマップ & サイト内検索機能ルール
+
+Webサイトのサイトマップとサイト内検索機能を実装する際のパターンとベストプラクティス。
+
+## 検索データ構造
+
+検索対象のページデータは以下の型で管理：
+
+```typescript
+interface SearchItem {
+  title: string;        // ページタイトル
+  description: string;  // 説明文
+  url: string;          // ページURL
+  icon?: string;        // アイコン（絵文字 or アイコン名）
+  category: string;     // カテゴリ
+  keywords: string[];   // 検索キーワード（同義語、関連語）
+  tags?: string[];      // タグ（フィルタリング用）
+}
+```
+
+### 検索データファイル
+
+`data/search-data.ts` に検索データを配置：
+
+```typescript
+export const searchData: SearchItem[] = [
+  {
+    title: "ページタイトル",
+    description: "ページの説明",
+    url: "/path/to/page",
+    category: "カテゴリ",
+    keywords: ["関連語1", "関連語2"]
+  }
+];
+```
+
+## 検索アルゴリズム
+
+スコアリング方式のファジー検索を使用：
+
+| マッチタイプ | スコア |
+|-------------|--------|
+| タイトル完全一致 | 100 |
+| タイトル前方一致 | 80 |
+| タイトル部分一致 | 60 |
+| キーワード一致 | 50 |
+| 説明文一致 | 40 |
+
+```typescript
+function fuzzySearch(query: string, data: SearchItem[]): SearchItem[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return [];
+
+  return data
+    .map(item => {
+      let score = 0;
+      const title = item.title.toLowerCase();
+
+      if (title === q) score += 100;
+      else if (title.startsWith(q)) score += 80;
+      else if (title.includes(q)) score += 60;
+
+      if (item.keywords.some(kw => kw.toLowerCase().includes(q))) score += 50;
+      if (item.description.toLowerCase().includes(q)) score += 40;
+
+      return { ...item, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 10);
+}
+```
+
+## 検索モーダルコンポーネント
+
+### 必須機能
+
+1. **キーボードショートカット**: `Cmd/Ctrl + K` で開く、`ESC` で閉じる
+2. **リアルタイム検索**: 入力に応じて即座に結果を表示
+3. **キーボードナビゲーション**: 矢印キーで結果を選択、Enter で遷移
+4. **ハイライト表示**: マッチ箇所を `<mark>` でハイライト
+5. **Focus Trap**: モーダル内にフォーカスを閉じ込める
+
+### 状態管理
+
+```typescript
+const [isOpen, setIsOpen] = useState(false);
+const [query, setQuery] = useState('');
+const [results, setResults] = useState<SearchItem[]>([]);
+const [selectedIndex, setSelectedIndex] = useState(0);
+```
+
+### キーボードイベント
+
+```typescript
+useEffect(() => {
+  const handler = (e: KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      setIsOpen(true);
+    }
+    if (e.key === 'Escape') setIsOpen(false);
+  };
+  document.addEventListener('keydown', handler);
+  return () => document.removeEventListener('keydown', handler);
+}, []);
+```
+
+## サイトマップページ構造
+
+### グリッドレイアウト
+
+```tsx
+<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {Object.entries(groupedByCategory).map(([category, items]) => (
+    <section className="bg-card rounded-xl p-6">
+      <h2>{category}</h2>
+      <ul>
+        {items.map((item, i) => (
+          <li>
+            <a href={item.url}>
+              <span className="badge">{i + 1}</span>
+              <span>{item.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+</div>
+```
+
+### 番号バッジスタイル
+
+```css
+.badge {
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+```
+
+## タグフィルタリング
+
+### タグコンポーネント
+
+```tsx
+function TagFilter({ tags, activeTag, onSelect }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <button
+        onClick={() => onSelect('all')}
+        className={activeTag === 'all' ? 'active' : ''}
+      >
+        すべて
+      </button>
+      {tags.map(tag => (
+        <button
+          key={tag}
+          onClick={() => onSelect(tag)}
+          className={activeTag === tag ? 'active' : ''}
+        >
+          {tag}
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
+### タグスタイル
+
+```css
+.tag {
+  padding: 0.25rem 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tag:hover,
+.tag.active {
+  background: var(--primary);
+  color: white;
+}
+```
+
+## セキュリティ
+
+### XSS対策
+
+ハイライト表示時は必ずHTMLエスケープ：
+
+```typescript
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function highlight(text: string, query: string): string {
+  const escaped = escapeHtml(text);
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  return escaped.replace(regex, '<mark>$1</mark>');
+}
+```
+
+## アクセシビリティ
+
+- モーダルには `role="dialog"` と `aria-modal="true"`
+- 検索入力には `aria-label="サイト内検索"`
+- 結果リストには `role="listbox"` と `aria-activedescendant`
+- フォーカス可能な要素には視覚的なフォーカスインジケータ
+
+## パフォーマンス
+
+- 検索はクライアントサイドで完結（サーバーリクエストなし）
+- 入力時の検索にはデバウンスを検討（100-300ms）
+- 結果は10件程度に制限
+- 大規模サイトではWeb Workerでの検索を検討
+
+## ファイル構成
+
+```
+src/
+├── components/
+│   ├── SearchModal.tsx
+│   ├── SearchButton.tsx
+│   └── TagFilter.tsx
+├── data/
+│   └── search-data.ts
+├── hooks/
+│   └── useSearch.ts
+└── app/
+    └── sitemap/
+        └── page.tsx
+```
