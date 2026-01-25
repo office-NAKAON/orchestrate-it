@@ -1,0 +1,185 @@
+---
+description: "GAS Webアプリ開発（HIG準拠）。GASでWebアプリ、doGet、スプレッドシート連携、Googleサービス連携、Gemini API連携、Apps Script Webアプリの時に適用"
+globs: ["**/*.gs", "**/Code.gs", "**/Index.html", "**/appsscript.json"]
+---
+
+# GAS Webアプリ開発スキル（HIG準拠版）
+
+Google Apps Script（GAS）で高品質なWebアプリを開発するためのルール。
+Apple Human Interface Guidelines（HIG）の20原則を組み込み、業界標準のUI/UXを保証。
+
+## 核心ルール
+
+### 1. 言語規則（厳守）
+
+UIテキストは全て日本語またはカタカナのみ。
+
+```
+NG: Settings, Home, New, Light, Dark
+OK: 設定, ホーム, 新規作成, ライト, ダーク
+```
+
+### 2. テーマシステム（6種必須）
+
+| テーマ名 | data-theme値 |
+|---------|-------------|
+| ライト | light |
+| ダーク | dark |
+| オーシャン | ocean |
+| フォレスト | forest |
+| サンセット | sunset |
+| サクラ | sakura |
+
+### 3. 必須機能
+
+1. **ロード画面**: テーマ色同期、フェードアウト
+2. **ツアー機能**: Driver.js v1.0.1、最低5ステップ
+3. **設定モーダル**: テーマ選択、フォント設定、リセット
+4. **LocalStorage**: 設定の永続化
+
+### 4. GAS固有の制約対応
+
+| 制約 | 対応策 |
+|-----|-------|
+| 1-3秒の遅延 | ローディング表示 + ボタンdisabled |
+| 処理中断不可 | クライアント側キャンセルフラグ |
+| 取り消し不可 | 論理削除（アーカイブ）優先 |
+
+### 5. スタンドアロン対応（重要）
+
+`getActiveSpreadsheet()` はスタンドアロンでは動作しない。必ず `PropertiesService` を使用。
+
+```javascript
+function getOrCreateSpreadsheet() {
+  const props = PropertiesService.getScriptProperties();
+  let ssId = props.getProperty('SPREADSHEET_ID');
+  if (!ssId) {
+    const ss = SpreadsheetApp.create('アプリ名_データ');
+    ssId = ss.getId();
+    props.setProperty('SPREADSHEET_ID', ssId);
+  }
+  return SpreadsheetApp.openById(ssId);
+}
+```
+
+## HIG 20原則（概要）
+
+### Phase 1: 全アプリ必須（7項目）
+
+1. ユーザーの主導権を保証する
+2. コンストレイント（制約）を活用する
+3. オブジェクトは自身の状態を体現する
+4. すべての操作可能な要素は意味を持つ
+5. デフォルトボタンには具体的な動詞を用いる（「OK」「はい」禁止）
+6. エラー表示は建設的にする
+7. 黙って実行する（不要な確認を排除）
+
+### Phase 2: フォーム・入力UI（8項目）
+
+8. 入力フォームにはストーリー性を持たせる
+9. 操作の流れを作る（ボタン重力）
+10. 選択肢の文言は肯定文にする
+11. 値を入力させるのではなく結果を選ばせる
+12. ユーザーに厳密さを求めない（全角/半角自動変換）
+13. 入力サジェスチョンを提示する
+14. フェールセーフを優先する
+15. 操作の近くでフィードバックする
+
+### Phase 3: UX向上（5項目）
+
+16. ユーザーの記憶に頼らない
+17. データよりも情報を伝える
+18. 即座の喜びを与える
+19. 回答の先送り（必須項目の最小化）
+20. プログレッシブ・ディスクロージャ
+
+## 出力ファイル構成
+
+### appsscript.json（必須）
+
+```json
+{
+  "timeZone": "Asia/Tokyo",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE_ANONYMOUS"
+  }
+}
+```
+
+### Code.gs
+
+```javascript
+const SHEET_NAMES = {
+  DATA: 'データ',
+  SETTINGS: '設定'
+};
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+    .setTitle('アプリ名')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// エラーハンドリング付き
+function getData() {
+  try {
+    const ss = getOrCreateSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_NAMES.DATA);
+    if (!sheet) {
+      return { success: false, error: 'シートが見つかりません' };
+    }
+    const data = sheet.getDataRange().getValues();
+    return { success: true, data: data };
+  } catch (e) {
+    console.error('getData error:', e);
+    return { success: false, error: e.message };
+  }
+}
+```
+
+### Index.html
+
+HTML, CSS, JavaScript を1ファイルに統合。
+
+必須ライブラリ：
+- Noto Sans JP (フォント最優先)
+- Material Icons
+- Driver.js v1.0.1
+
+## デプロイ注意点
+
+**clasp push だけではWebアプリに反映されない**
+
+1. `clasp push` はGASエディタにコードを反映するだけ
+2. Webアプリに反映するには「新しいデプロイ」が必要
+3. 開発中は「テストデプロイ」を使うとURLが固定で便利
+
+## チェックリスト
+
+出力前に確認：
+
+- [ ] 6種テーマすべてのCSS定義
+- [ ] テーマ名がカタカナ表記
+- [ ] ロード画面・ツアー機能・設定モーダル
+- [ ] ボタンラベルに英語がない
+- [ ] すべてのGAS呼び出しにローディング表示
+- [ ] 削除機能は論理削除（アーカイブ）方式
+- [ ] appsscript.jsonにwebapp設定が含まれている
+- [ ] getActiveSpreadsheet()を使用していない
+- [ ] すべてのGAS関数がtry-catchで囲まれている
+
+## AI連携時の注意（Gemini API）
+
+- APIキーはPropertiesServiceで安全に管理
+- **モデル名は公式ドキュメントで最新を確認**（頻繁に変更される）
+- AI処理中は適切なローディング表示
+
+## クレジット
+
+**Original**: [gas-webapp-prompt-hig.md](https://github.com/akari-iku/gas-webapp-prompt/blob/main/prompt/gas-webapp-prompt-hig.md)
+**Author**: Akari ([akari-iku](https://github.com/akari-iku))
+**License**: MIT License

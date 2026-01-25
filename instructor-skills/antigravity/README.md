@@ -52,6 +52,7 @@ https://github.com/School-Agent-Inc/orchestrate-it/tree/main/instructor-skills/a
 | スキル名 | 説明 | 優先度 |
 |---------|------|-------|
 | **skill-creator** | スキル作成ガイド（まずこれを導入！） | ★★★ |
+| **gas-webapp-hig** | GAS Webアプリ開発（HIG準拠、6テーマ、20原則） | ★★★ |
 | sitemap-search | サイトマップ&サイト内検索機能を実装 | ★★ |
 
 ## 参考
