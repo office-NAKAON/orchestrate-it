@@ -8,10 +8,16 @@
 ```
 instructor-skills/
 ├── antigravity/       # Google Antigravity用
+│   ├── gas-webapp-hig/    # GAS Webアプリ開発（HIG準拠）
 │   └── sitemap-search/
 ├── claude-code/       # Claude Code用
+│   ├── gas-webapp-hig/    # GAS Webアプリ開発（HIG準拠）
 │   └── sitemap-search/
-└── cursor/            # Cursor用
+├── cursor/            # Cursor用
+│   ├── gas-webapp-hig/    # GAS Webアプリ開発（HIG準拠）
+│   └── sitemap-search/
+└── gemini-cli/        # Gemini CLI用
+    ├── gas-webapp-hig/    # GAS Webアプリ開発（HIG準拠）
     └── sitemap-search/
 ```
 
@@ -24,6 +30,28 @@ instructor-skills/
 | Cursor | `.mdc` | `.cursor/rules/` | Frontmatter + Markdown、glob対応 |
 
 ## 提供スキル
+
+### GAS Webアプリ HIG準拠 (`gas-webapp-hig`)
+
+Google Apps Script（GAS）で高品質なWebアプリを開発するスキル。
+
+**機能:**
+- HIG（Human Interface Guidelines）20原則準拠
+- 6種類のテーマ（ライト、ダーク、オーシャン、フォレスト、サンセット、サクラ）
+- ロード画面、ツアー機能、設定モーダル
+- GAS固有の制約（遅延、中断不可、取り消し不可）への対策
+- 日本語UI必須ルール
+
+**出力ファイル:**
+- コード.gs（doGet関数 + サーバーサイド処理）
+- Index.html（HTML/CSS/JS統合）
+
+**クレジット:**
+- Original: [gas-webapp-prompt-hig.md](https://github.com/akari-iku/gas-webapp-prompt/blob/main/prompt/gas-webapp-prompt-hig.md)
+- Author: Akari ([akari-iku](https://github.com/akari-iku))
+- License: MIT
+
+---
 
 ### サイトマップ & サイト内検索 (`sitemap-search`)
 
@@ -48,13 +76,17 @@ Webサイトにサイトマップページとサイト内検索機能を実装�
 
 ```
 このスキルを導入して
-https://github.com/School-Agent-Inc/orchestrate-it/tree/main/instructor-skills/antigravity/sitemap-search
+https://github.com/School-Agent-Inc/orchestrate-it/tree/main/instructor-skills/antigravity/gas-webapp-hig
 ```
 
 ### Claude Code
 
-`.claude/skills/sitemap-search/` ディレクトリにSKILL.mdをコピー
+`.claude/skills/gas-webapp-hig/` ディレクトリにSKILL.mdとreferences/をコピー
+
+### Gemini CLI
+
+`~/.gemini/skills/gas-webapp-hig/` にSKILL.mdとreferences/をコピー
 
 ### Cursor
 
-`.cursor/rules/` ディレクトリに `.mdc` ファイルをコピー
+`.cursor/rules/` ディレクトリに `gas-webapp-hig.mdc` をコピー

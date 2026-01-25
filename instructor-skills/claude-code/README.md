@@ -6,6 +6,10 @@ Claude Codeで使用できるスキル集です。
 
 ```
 claude-code/
+├── gas-webapp-hig/        # GAS Webアプリ開発（HIG準拠）
+│   ├── SKILL.md
+│   ├── README.md
+│   └── references/
 └── sitemap-search/
     └── SKILL.md
 ```
@@ -54,6 +58,7 @@ ln -s .external/orchestrate-it/instructor-skills/claude-code/sitemap-search .cla
 
 | スキル名 | 説明 |
 |---------|------|
+| **gas-webapp-hig** | GAS Webアプリ開発（HIG準拠、6テーマ、20原則） |
 | sitemap-search | サイトマップ&サイト内検索機能を実装 |
 
 ## 参考

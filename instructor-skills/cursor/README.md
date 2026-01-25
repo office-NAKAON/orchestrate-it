@@ -54,6 +54,7 @@ cp sitemap-search/sitemap-search.mdc .cursor/rules/
 
 | ルール名 | 対象glob | 説明 |
 |---------|---------|------|
+| **gas-webapp-hig** | `**/*.gs`, `**/Index.html` | GAS Webアプリ開発（HIG準拠、6テーマ、20原則） |
 | sitemap-search | `**/sitemap/**`, `**/search/**` | サイトマップ&検索機能の実装パターン |
 
 ## 参考

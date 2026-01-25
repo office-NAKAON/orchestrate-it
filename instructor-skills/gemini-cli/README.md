@@ -39,6 +39,7 @@ cp -r skill-creator .gemini/skills/
 
 | スキル | 説明 |
 |-------|------|
+| **gas-webapp-hig** | GAS Webアプリ開発（HIG準拠、6テーマ、20原則） |
 | skill-creator | スキル作成ガイド |
 | sitemap-search | サイトマップ＆検索機能実装 |
 
