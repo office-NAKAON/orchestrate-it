@@ -10,6 +10,10 @@ claude-code/
 │   ├── SKILL.md
 │   ├── README.md
 │   └── references/
+├── web-builder/           # Next.js/React Web構築
+│   ├── SKILL.md
+│   ├── README.md
+│   └── references/
 └── sitemap-search/
     └── SKILL.md
 ```
@@ -59,6 +63,7 @@ ln -s .external/orchestrate-it/instructor-skills/claude-code/sitemap-search .cla
 | スキル名 | 説明 |
 |---------|------|
 | **gas-webapp-hig** | GAS Webアプリ開発（HIG準拠、6テーマ、20原則） |
+| **web-builder** | Next.js/React 高品質Webサイト構築（awwwardsレベル） |
 | sitemap-search | サイトマップ&サイト内検索機能を実装 |
 
 ## 参考
