@@ -65,7 +65,7 @@
 Antigravityのチャットで以下のように伝えるだけ：
 
 ```
-このリポジトリのskillを導入して
+このスキルをインストールして
 https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.antigravity/skills/lesson-plan
 ```
 
@@ -173,16 +173,16 @@ orchestrate-it/
 **A:** `description` に `Use when:` を含めていますか？AIはこの記述を見て、いつSkillを使うか判断します。
 
 ### Q: 複数のSkillを導入したい
-**A:** 1つずつ導入してください。または、フォルダごと導入することも可能です：
+**A:** 1つずつ導入してください。または、フォルダごとインストールすることも可能です：
 ```
-このリポジトリの.antigravity/skillsフォルダを全て導入して
+このフォルダのスキルを全てインストールして
 https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.antigravity/skills
 ```
 
 ### Q: Rulesも導入したい
-**A:** 同様にURLを指定して導入できます：
+**A:** 同様にURLを指定してインストールできます：
 ```
-このリポジトリのrulesを導入して
+このルールをインストールして
 https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.antigravity/rules
 ```
 
