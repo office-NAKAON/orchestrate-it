@@ -45,7 +45,7 @@
 
 ```
 プロジェクト/
-├── .agent/
+├── .antigravity/
 │   ├── skills/          # Skills（自動起動する専門知識）
 │   │   └── lesson-plan/
 │   │       └── SKILL.md
@@ -65,8 +65,8 @@
 Antigravityのチャットで以下のように伝えるだけ：
 
 ```
-このリポジトリのskillを導入して
-https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.agent/skills/lesson-plan
+このスキルをインストールして
+https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.antigravity/skills/lesson-plan
 ```
 
 ### Step 2: 動作確認
@@ -136,9 +136,9 @@ submissions/
 ```
 orchestrate-it/
 ├── README.md                    # このファイル
-├── .agent/                      # サンプル（Antigravity形式）
+├── .antigravity/                # サンプル（Antigravity形式）
 │   ├── skills/                  # サンプルSkills
-│   │   ├── lesson-plan/         # 指導案作成Skill
+│   │   ├── lesson-plan/         # 指導案作成Skill（学習指導要領準拠）
 │   │   ├── report-comment/      # 通知表コメントSkill
 │   │   └── parent-letter/       # 保護者向けお便りSkill
 │   ├── rules/                   # サンプルRules
@@ -173,17 +173,17 @@ orchestrate-it/
 **A:** `description` に `Use when:` を含めていますか？AIはこの記述を見て、いつSkillを使うか判断します。
 
 ### Q: 複数のSkillを導入したい
-**A:** 1つずつ導入してください。または、フォルダごと導入することも可能です：
+**A:** 1つずつ導入してください。または、フォルダごとインストールすることも可能です：
 ```
-このリポジトリの.agent/skillsフォルダを全て導入して
-https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.agent/skills
+このフォルダのスキルを全てインストールして
+https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.antigravity/skills
 ```
 
 ### Q: Rulesも導入したい
-**A:** 同様にURLを指定して導入できます：
+**A:** 同様にURLを指定してインストールできます：
 ```
-このリポジトリのrulesを導入して
-https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.agent/rules
+このルールをインストールして
+https://github.com/School-Agent-Inc/orchestrate-it/tree/main/.antigravity/rules
 ```
 
 ---
